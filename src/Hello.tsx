@@ -1,29 +1,43 @@
-import React, { FC, useState } from 'react';
-import './Hello.pcss';
-
-type Props = {};
+import { Component, createMemo, createSignal, For } from 'solid-js';
 
 const users = ['AAA', 'BBB', 'CCC']
-export const Hello: FC<Props> = ({ }) => {
-  const [, update] = useState(0)
+
+export const Hello: Component = () => {
+  const [count, setCount] = createSignal(0);
   const onClick = (userName: string, timestamp: number) => {
     console.log('onClick: ', userName, timestamp);
   };
 
-  const someUsers = users.slice(0, Date.now() % 4);
+  // 使用createMemo创建一个依赖于count的计算值
+  const someUsers = createMemo(() => {
+    console.log('someUsers is recalculating...');
+    return users.slice(0, count() % 4);
+  });
 
-  return <div className={'Hello'}>
-    <h1>Hello React</h1>
-    <button onClick={() => update(Date.now())}>Update ({someUsers.length})</button>
-    <hr />
-    {someUsers.map((user, index) => <MyButton key={index} onClick={() => onClick(user, Date.now())} />)}
-  </div>;
+  return (
+    <div class='Hello'>
+      <h1>Hello SolidJS</h1>
+      <button onClick={() => setCount(c => c + 1)}>Update ({someUsers().length})</button>
+      <div>Count: {count()}</div>
+      <hr />
+      <For each={someUsers()}>
+        {(user) => <MyButton onClick={() => onClick(user, Date.now())} />}
+      </For>
+    </div>
+  );
 }
 
-const MyButton: FC<{ onClick: () => void }> = React.memo(({ onClick }) => {
-  console.log(`### > MyButton${Date.now()}`, { onClick })
-  const renderCount = React.useRef(0)
-  renderCount.current += 1
+const MyButton: Component<{ onClick: () => void }> = (props) => {
+  console.log(`### > MyButton${Date.now()}`, { onClick: props.onClick })
 
-  return <button onClick={onClick}>Render Count: {renderCount.current}</button>
-})
+  const [renderCount, setRenderCount] = createSignal(0);
+
+  return (
+    <button onClick={() => {
+      setRenderCount(c => c + 1);
+      props.onClick();
+    }}>
+      Render Count: {renderCount()}
+    </button>
+  );
+}

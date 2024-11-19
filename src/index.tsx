@@ -1,9 +1,5 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
+/* @refresh reload */
+import { render } from 'solid-js/web';
+import { Hello } from './Hello';
 
-import { Hello } from './Hello'
-
-ReactDOM.render(
-  <Hello/>,
-  document.getElementById('root')
-)
+render(() => <Hello />, document.getElementById('root')!);
